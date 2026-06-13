@@ -3,7 +3,7 @@ package com.demo.booking.dto;
 /**
  * 【传输对象】健康检查响应。
  * <p>
- * demo / 面试前先调用 {@code GET /api/health} 确认 DeepSeek 配置与连通性。
+ * 启动后可调用 {@code GET /api/health} 确认 DeepSeek 配置与连通性。
  * </p>
  */
 public class HealthResponse {

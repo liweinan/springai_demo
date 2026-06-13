@@ -22,16 +22,6 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 ---
 
-## 为什么适合做面试突击？
-
-- **代码量少**：约 15 个核心文件，1～2 小时能读完
-- **分层清晰**：Controller → Service → Repository；AI 工具单独一层
-- **Spring AI 集中**：读 4 个文件即可讲清 ChatClient + `@Tool` + ReAct
-- **注释完整**：JavaDoc + 配置文件中文注释 + React 关键逻辑说明
-- **可验证**：curl 脚本 + Playwright E2E（4 项全绿）
-
----
-
 ## 技术栈
 
 | 层级 | 技术 |
@@ -158,16 +148,6 @@ npm test
 | 聊天订票 | 「我要订票」→ 左栏 +1 |
 | 聊天取消 | 「取消订票 G123」→ 票回右栏 |
 | 健康检查 | `/api/health` 正常 |
-
----
-
-## 面试演示建议
-
-1. 打开页面，展示双栏列表
-2. 输入「我要订票」，指后端日志 `[Tool 被调用]`
-3. 指左栏变化，说明 Tools → Service 保证数据一致
-4. 输入「取消订票 G123」，展示 ReAct 再次触发
-5. 主动说明：LLM 偶发只回复不调工具，本项目用低 temperature + 强 prompt + 业务兜底缓解
 
 ---
 

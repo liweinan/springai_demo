@@ -15,7 +15,7 @@
     <artifactId>booking-demo</artifactId>
     <version>1.0.0</version>
     <name>booking-demo</name>
-    <description>订票聊天 Fullstack 突击学习项目 - 后端</description>
+    <description>订票聊天 Fullstack Demo - 后端</description>
 
     <properties>
         <java.version>17</java.version>
