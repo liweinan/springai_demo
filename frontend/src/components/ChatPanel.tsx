@@ -5,7 +5,7 @@
  * 被 App.tsx 调用；发送逻辑由 App 传入的 onSend 处理（便于发送后刷新列表）。
  */
 
-import { useState } from 'react'
+import { useState, type SubmitEvent } from 'react'
 import type { ChatMessage } from '../types/booking'
 
 interface ChatPanelProps {
@@ -28,7 +28,7 @@ export default function ChatPanel({
   // 输入框当前文字
   const [input, setInput] = useState('')
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: SubmitEvent<HTMLFormElement>) => {
     event.preventDefault()
     const trimmed = input.trim()
     if (!trimmed || sending) {

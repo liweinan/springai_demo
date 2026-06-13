@@ -1,0 +1,11 @@
+{
+  "name": "springai_demo",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "pnpm --dir frontend dev",
+    "build": "pnpm --dir frontend build",
+    "test:e2e": "pnpm --dir e2e test",
+    "capture-screenshots": "pnpm --dir e2e capture-screenshots"
+  }
+}

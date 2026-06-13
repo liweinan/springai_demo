@@ -475,7 +475,7 @@ Playwright 自动截取页面状态，供 README 效果预览使用。
 | `/api/chat` 返回 error | Key 未设或网络问题 | `curl /api/health` |
 | 前端 404 on /api | 后端未启动或 proxy 未生效 | 确认 8080、5173 都在跑 |
 | 重启后数据恢复初始 3 条 | H2 内存库特性 | 正常；要持久化可换 SQLite |
-| CORS 报错 | 未走 Vite 代理且缺 CORS | 用 `npm run dev` 访问 5173 |
+| CORS 报错 | 未走 Vite 代理且缺 CORS | 用 `pnpm dev` 访问 5173 |
 
 ---
 
@@ -495,6 +495,9 @@ Playwright 自动截取页面状态，供 README 效果预览使用。
 
 ```
 springai_demo/
+├── package.json                             # 根脚本：pnpm dev / test:e2e
+├── pnpm-workspace.yaml                      # workspace（frontend + e2e）
+├── pnpm-lock.yaml                           # pnpm 锁文件
 ├── backend/
 │   ├── pom.xml
 │   └── src/main/
@@ -518,10 +521,12 @@ springai_demo/
 ├── e2e/                                     # Playwright
 ├── docs/
 │   ├── ARCHITECTURE.md                      # 本文档
+│   ├── CORS.md                              # 跨域 / Proxy / curl 实测
 │   └── screenshots/
 └── README.md
 ```
 
 ---
 
-更简短的快速上手说明见根目录 [README.md](../README.md)。
+更完整的系统说明见 [ARCHITECTURE.md](ARCHITECTURE.md)。  
+跨域、Vite Proxy 与 Spring CORS 的关系见 [CORS.md](CORS.md)（含 curl 实测）。

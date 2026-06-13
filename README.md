@@ -8,6 +8,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **详细架构说明（自学向）** → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
+**跨域与 Vite Proxy / CORS** → [docs/CORS.md](docs/CORS.md)
+
 ---
 
 ## 效果预览
@@ -20,9 +22,14 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 |:---:|
 | ![取消后](docs/screenshots/03-after-cancel.png) |
 
-截图由 Playwright 自动生成：`cd e2e && npm run capture-screenshots`
+截图由 Playwright 自动生成：`pnpm run capture-screenshots`（需先 `pnpm install`）
 
 ---
+
+## 前置要求
+
+- Java 17+、Maven
+- [pnpm](https://pnpm.io/installation) 9+（本项目使用 pnpm workspace 管理 `frontend` 与 `e2e`）
 
 ## 技术栈
 
@@ -55,13 +62,16 @@ mvn spring-boot:run
 
 → `http://localhost:8080`
 
-### 3. 启动前端
+### 3. 安装依赖并启动前端
+
+在项目根目录：
 
 ```bash
-cd frontend
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
+
+或在 `frontend` 目录：`pnpm install && pnpm dev`
 
 → `http://localhost:5173`
 
@@ -138,11 +148,12 @@ curl "http://localhost:8080/api/bookings?status=SUBSCRIBED"
 
 ```bash
 export DEEPSEEK_API_KEY=your-key-here
-cd e2e
-npm install
-npx playwright install chromium
-npm test
+pnpm install
+pnpm --dir e2e exec playwright install chromium
+pnpm test:e2e
 ```
+
+或在 `e2e` 目录：`pnpm test`
 
 | 用例 | 验证 |
 |------|------|
@@ -157,11 +168,13 @@ npm test
 
 ```
 springai_demo/
-├── backend/          # Spring Boot + Spring AI
-├── frontend/         # React + Vite
-├── e2e/              # Playwright 测试 + 截图脚本
-├── docs/screenshots/ # README 用截图
-├── .env.example      # Key 配置示例（不含真实 Key）
+├── package.json          # 根脚本（pnpm dev / test:e2e）
+├── pnpm-workspace.yaml   # workspace：frontend + e2e
+├── backend/              # Spring Boot + Spring AI
+├── frontend/             # React + Vite
+├── e2e/                  # Playwright 测试 + 截图脚本
+├── docs/screenshots/     # README 用截图
+├── .env.example          # Key 配置示例（不含真实 Key）
 └── README.md
 ```
 

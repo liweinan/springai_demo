@@ -1,6 +1,6 @@
 /**
  * 生成 README 用截图，输出到 docs/screenshots/
- * 运行：DEEPSEEK_API_KEY=xxx npm run capture-screenshots
+ * 运行：DEEPSEEK_API_KEY=xxx pnpm run capture-screenshots
  */
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
