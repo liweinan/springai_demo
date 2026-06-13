@@ -1,0 +1,36 @@
+# 依赖与构建产物
+node_modules/
+dist/
+*.local
+
+# 环境变量（含 API Key，绝不提交）
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Java / Maven
+backend/target/
+*.class
+*.jar
+*.war
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+
+# Playwright E2E
+e2e/node_modules/
+e2e/test-results/
+e2e/playwright-report/
+e2e/blob-report/
+e2e/playwright/.cache/
+
+# Maven wrapper / 本地配置
+backend/.mvn/wrapper/maven-wrapper.jar

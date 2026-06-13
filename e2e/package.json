@@ -1,0 +1,14 @@
+{
+  "name": "booking-e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test tests/app.spec.ts",
+    "capture-screenshots": "playwright test tests/capture-screenshots.spec.ts",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  }
+}
