@@ -6,6 +6,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 > 仓库地址：[github.com/liweinan/springai_demo](https://github.com/liweinan/springai_demo)
 
+**详细架构说明（自学向）** → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ---
 
 ## 效果预览
