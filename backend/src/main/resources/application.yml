@@ -25,7 +25,7 @@ spring:
     init:
       mode: always
 
-  # Spring AI - DeepSeek 大模型配置
+  # Spring AI 2.0 - DeepSeek 大模型配置（需 Spring Boot 4.x）
   ai:
     deepseek:
       # API Key 从环境变量读取，绝不写死在代码里
@@ -36,13 +36,16 @@ spring:
           model: deepseek-chat
           # 低温度 → 更稳定地选择工具，减少编造结果
           temperature: 0.1
+    # 2.0：defaultTools 时 ToolCallingAdvisor 默认自动注册（spring.ai.chat.client.tool-calling.enabled=true）
+    # 本 Demo 在 ChatConfig 用 PromptLoggingAdvisor 观察每步 Prompt/Response，无需额外配置
 
 # 服务端口
 server:
   port: 8080
 
-# 日志级别：Tool 调用日志用 INFO 即可观察 ReAct
+# 日志级别：Tool / Chat / AI 每步 Prompt-Response 用 INFO 观察 ReAct
 logging:
   level:
     com.demo.booking.tools: INFO
     com.demo.booking.service.ChatService: INFO
+    com.demo.booking.advisor.PromptLoggingAdvisor: INFO

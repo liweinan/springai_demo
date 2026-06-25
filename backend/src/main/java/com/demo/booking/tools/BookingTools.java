@@ -13,14 +13,14 @@ import java.util.List;
  * 【AI 工具层】暴露给大模型调用的 Java 方法。
  * <p>
  * Spring AI 通过 {@code @Tool} 注解把这些方法注册为「工具」，
- * DeepSeek 在 ReAct 循环中会决定何时调用它们。
+ * 由 {@code ToolCallingAdvisor}（Spring AI 2.0 在 {@code defaultTools} 时自动注册）在 ReAct 循环中调用。
  * </p>
  * <p>
  * <b>设计原则</b>：每个工具方法体内只调用 {@link BookingService}，
  * 不直接操作数据库，保证与 REST API 数据一致。
  * </p>
  * <p>
- * 学习时在控制台搜索 {@code [Tool 被调用]}，可观察 ReAct 是否真正发生。
+ * 学习时在控制台搜索 {@code [Tool 被调用]}（工具真正执行）与 {@code [AI 第}（Advisor 链每步 Prompt/Response）。
  * </p>
  */
 @Component

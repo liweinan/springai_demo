@@ -36,9 +36,37 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 | 层级 | 技术 |
 |------|------|
 | 前端 | React 18、TypeScript、Vite |
-| 后端 | Java 17、Spring Boot 3.4、Spring Data JPA、H2 |
-| AI | Spring AI 1.0、DeepSeek `deepseek-chat`、Tool Calling |
+| 后端 | Java 17、Spring Boot 4.1、Spring Data JPA、H2 |
+| AI | Spring AI 2.0、DeepSeek `deepseek-chat`、Tool Calling |
 | 测试 | Playwright E2E |
+
+---
+
+## Spring AI 2.0 主要变化（相对 1.x）
+
+本项目已从 Spring AI 1.x + Spring Boot 3.x 升级到 **Spring AI 2.0.0 + Spring Boot 4.1.0**。对本 Demo 影响最大的几点如下：
+
+| 变化 | 说明 |
+|------|------|
+| **必须搭配 Spring Boot 4** | Spring AI 2.0 基于 Boot 4 依赖模型，不能与 Boot 3.x 混用。 |
+| **`ToolCallingAdvisor` 自动注册** | 调用 `defaultTools(...)` 后，框架会自动在 Advisor 链中注册 `ToolCallingAdvisor`（order ≈ +300），**无需**在 `ChatConfig` 里手动 `new ToolCallAdvisor`。 |
+| **ReAct 循环进入 Advisor 链** | 1.x 中工具循环多在 `ChatModel` 内部执行，外层 Advisor 往往只能看到首尾两次调用；2.0 把循环放进 Advisor 链，便于观测与扩展。 |
+| **`PromptLoggingAdvisor` 可逐步打印** | 本项目自定义 `PromptLoggingAdvisor`（order +400，位于 `ToolCallingAdvisor` 之内），控制台以 `[AI 第N步]` 输出每轮实际 Prompt 与 Response。 |
+| **配置更精简** | `ChatConfig` 只保留 `defaultSystem` + `defaultTools` + 日志 Advisor；`ToolCallingManager` 仍由 Spring Boot 自动配置，业务代码无需注入。 |
+
+**日志里如何读 ReAct**（需 `DEEPSEEK_API_KEY` 且后端 INFO 日志开启）：
+
+```
+[Chat] 收到用户消息: 我要订票
+[AI 第1步] 发送 Prompt: ...          ← 发给 DeepSeek 的完整消息
+[AI 第1步] 收到 Response: ... (tool_calls)
+[Tool 被调用] subscribeTicket       ← 工具真正执行
+[AI 第2步] 发送 Prompt: ...（含 TOOL_RESPONSE）
+[AI 第2步] 收到 Response: ...       ← 最终中文回复
+[Chat] AI 回复: ...
+```
+
+更多 API 级破坏性变更见官方 [Upgrade Notes 2.0](https://docs.spring.io/spring-ai/reference/2.0/upgrade-notes.html)。
 
 ---
 
@@ -102,9 +130,9 @@ Spring Boot
                                    DeepSeek API
 ```
 
-**ReAct 由谁驱动**：Spring AI 内置 `ToolCallingAdvisor`，自动完成「推理 → 调工具 → 回传结果 → 生成回复」，无需手写 `while`。
+**ReAct 由谁驱动**：Spring AI 2.0 在注册 `defaultTools` 后自动启用 `ToolCallingAdvisor`，完成「推理 → 调工具 → 回传结果 → 生成回复」，无需手写 `while`。
 
-**如何确认工具被调用**：后端日志出现 `[Tool 被调用] subscribeTicket`。
+**如何确认工具被调用**：后端日志出现 `[Tool 被调用] subscribeTicket`；若需看每步 Prompt/Response，搜索 `[AI 第`。
 
 ---
 
@@ -112,7 +140,8 @@ Spring Boot
 
 | 文件 | 作用 |
 |------|------|
-| `config/ChatConfig.java` | 组装 `ChatClient` + system prompt + tools |
+| `config/ChatConfig.java` | 组装 `ChatClient` + system prompt + tools + `PromptLoggingAdvisor` |
+| `advisor/PromptLoggingAdvisor.java` | 打印 ReAct 每步 Prompt / Response（Spring AI 2.0 Advisor 链内） |
 | `tools/BookingTools.java` | 3 个 `@Tool` 方法（订票 / 取消 / 查列表） |
 | `service/ChatService.java` | **唯一**调用大模型：`chatClient.prompt().user().call()` |
 | `controller/ChatController.java` | HTTP 入口，不含 AI 逻辑 |
@@ -158,8 +187,8 @@ pnpm test:e2e
 | 用例 | 验证 |
 |------|------|
 | 初始加载 | 3 未订阅 / 0 已订阅 |
-| 聊天订票 | 「我要订票」→ 左栏 +1 |
-| 聊天取消 | 「取消订票 G123」→ 票回右栏 |
+| 聊天订票 | 「我要订票」→ 左栏 +1（不假定具体订哪张票） |
+| 聊天取消 | 取消当前左栏已订阅票 → 回到右栏 |
 | 健康检查 | `/api/health` 正常 |
 
 ---

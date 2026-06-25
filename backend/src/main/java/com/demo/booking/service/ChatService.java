@@ -1,5 +1,6 @@
 package com.demo.booking.service;
 
+import com.demo.booking.advisor.PromptLoggingAdvisor;
 import com.demo.booking.dto.ChatResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,11 @@ import org.springframework.util.StringUtils;
  * <p>
  * 本类是<strong>唯一调用大模型</strong>的地方。
  * 读懂 {@link #chat(String)} 方法，就理解了 Spring AI ChatClient 的基本用法。
+ * </p>
+ * <p>
+ * 【Spring AI 2.0 调用链】一次 {@code call()} 内部可能触发多轮 DeepSeek 请求（ReAct），
+ * 但业务代码仍只需写 {@code chatClient.prompt().user().call().content()}——
+ * 循环由 {@code ToolCallingAdvisor} 驱动，逐步日志由 {@link PromptLoggingAdvisor} 输出。
  * </p>
  * <p>
  * 被 {@link com.demo.booking.controller.ChatController} 调用。
@@ -31,13 +37,14 @@ public class ChatService {
     /**
      * 处理用户聊天消息，驱动 ReAct 循环完成订票/取消等操作。
      * <p>
-     * 调用链：
+     * 调用链（Spring AI 2.0，Advisor 链内 ReAct）：
      * <pre>
      * chatClient.prompt().user(message).call().content()
-     *   → DeepSeek 推理
+     *   → PromptLoggingAdvisor 第 1 步：Prompt → DeepSeek → Response（含 tool_calls）
      *   → ToolCallingAdvisor 执行 BookingTools
-     *   → 再次调用 DeepSeek 生成最终回复
+     *   → PromptLoggingAdvisor 第 2 步：Prompt（含 TOOL_RESPONSE）→ DeepSeek → 最终文本
      * </pre>
+     * 1.x 中上述中间步骤发生在 ChatModel 内部，控制台通常看不到第 1 步的 tool_calls 与第 2 步的 TOOL_RESPONSE。
      * </p>
      *
      * @param userMessage 用户自然语言输入
@@ -51,9 +58,8 @@ public class ChatService {
         log.info("[Chat] 收到用户消息: {}", userMessage);
 
         try {
-            // 第 1 步：把用户消息 + system prompt + 工具清单 发给 DeepSeek
-            // 第 2 步：call() 内部 ToolCallingAdvisor 自动完成 ReAct 循环
-            // 第 3 步：content() 取模型最终文本回复
+            PromptLoggingAdvisor.resetSteps();  // 2.0：一次 HTTP 请求可能对应多步 Advisor 迭代
+            // 单次 call()；ToolCallingAdvisor 在链内完成 ReAct，PromptLoggingAdvisor 记录每步 Prompt/Response
             String reply = chatClient
                     .prompt()
                     .user(userMessage.trim())
