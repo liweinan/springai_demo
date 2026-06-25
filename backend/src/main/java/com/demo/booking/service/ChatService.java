@@ -85,6 +85,7 @@ public class ChatService {
      */
     public boolean pingDeepSeek() {
         try {
+            PromptLoggingAdvisor.resetSteps();
             chatClient.prompt().user("ping").call().content();
             return true;
         } catch (Exception ex) {

@@ -70,6 +70,31 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 ---
 
+## Docker 一键启动
+
+需已安装 [Docker](https://docs.docker.com/get-docker/) 与 Docker Compose。
+
+```bash
+# 配置 Key（勿写入镜像；compose 从环境变量或 .env 读取）
+export DEEPSEEK_API_KEY=your-key-here
+# 或：cp .env.example .env 并编辑
+
+docker compose up --build
+```
+
+| 地址 | 说明 |
+|------|------|
+| http://localhost:5173 | 前端（Vite dev，/api 代理到 backend） |
+| http://localhost:8080 | 后端 API |
+
+Docker 容器探活使用 `GET /api/health/live`（不调用 DeepSeek）；手动验收 Key 与连通性仍用 `GET /api/health`。
+
+Compose 下 backend 日志默认为 **DEBUG**：除 INFO 的 messages 外，还会打印注册工具的 name / description / inputSchema（对应 API `tools` 字段，不在 messages 里）。
+
+停止：`docker compose down`
+
+---
+
 ## 快速启动
 
 ### 1. 配置 API Key（必做）
@@ -155,7 +180,8 @@ Spring Boot
 | GET | `/api/bookings?status=SUBSCRIBED` | 已订阅列表 |
 | GET | `/api/bookings?status=UNSUBSCRIBED` | 未订阅列表 |
 | POST | `/api/chat` | 聊天，`{"message":"我要订票"}` |
-| GET | `/api/health` | Key 配置与 DeepSeek 连通性 |
+| GET | `/api/health/live` | 存活探针（不调用 DeepSeek，Docker 用） |
+| GET | `/api/health` | Key 配置与 DeepSeek 连通性（手动调用） |
 
 ---
 
@@ -197,6 +223,7 @@ pnpm test:e2e
 
 ```
 springai_demo/
+├── docker-compose.yml    # 一键启动前后端
 ├── package.json          # 根脚本（pnpm dev / test:e2e）
 ├── pnpm-workspace.yaml   # workspace：frontend + e2e
 ├── backend/              # Spring Boot + Spring AI

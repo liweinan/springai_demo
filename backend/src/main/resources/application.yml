@@ -43,9 +43,12 @@ spring:
 server:
   port: 8080
 
-# 日志级别：Tool / Chat / AI 每步 Prompt-Response 用 INFO 观察 ReAct
+# 日志级别
+# - INFO：ReAct 每步 messages / Response、Tool 被调用
+# - DEBUG：PromptLoggingAdvisor 打印注册的工具 schema（options → API tools 字段，不在 messages 里）
+#   勿在此处单独把 PromptLoggingAdvisor 设为 INFO，否则会覆盖 Docker 的 LOGGING_LEVEL_COM_DEMO_BOOKING=DEBUG
+#   本地默认 com.demo.booking=INFO；Docker Compose 通过环境变量改为 DEBUG
 logging:
   level:
-    com.demo.booking.tools: INFO
-    com.demo.booking.service.ChatService: INFO
-    com.demo.booking.advisor.PromptLoggingAdvisor: INFO
+    com.demo.booking: INFO
+    org.springframework.ai: INFO

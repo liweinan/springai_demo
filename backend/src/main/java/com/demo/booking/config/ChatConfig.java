@@ -23,11 +23,11 @@ import org.springframework.context.annotation.Configuration;
  * 【ReAct 原理简述】
  * <ol>
  *   <li>注册 {@code defaultTools(bookingTools)} → 自动启用 {@code ToolCallingAdvisor}</li>
- *   <li>用户发消息 → ChatClient 把 system prompt + 工具清单 + 用户消息发给 DeepSeek</li>
+ *   <li>用户发消息 → system + 用户消息进入 {@code messages}；{@code @Tool} 定义进入 {@code options.toolCallbacks} → API {@code tools}</li>
  *   <li>模型返回 tool call → ToolCallingAdvisor 执行 {@link BookingTools} 中对应方法</li>
  *   <li>工具结果回传模型 → 模型生成最终中文回复</li>
  * </ol>
- * {@link PromptLoggingAdvisor}（order +400）位于 ToolCallingAdvisor 之内，打印每一步 Prompt / Response。
+ * {@link PromptLoggingAdvisor}（order +400）打印每步 messages（INFO）与 tool 定义（DEBUG，见该类注释）。
  * </p>
  */
 @Configuration
@@ -56,8 +56,8 @@ public class ChatConfig {
                         4. 用户明确问「有哪些票可以订」→ 调用 listUnsubscribedTickets 后回答。
                         5. 工具成功后用一句简洁中文回复。
                         """)
-                .defaultTools(bookingTools)   // 触发 ToolCallingAdvisor 自动注册 + 工具定义注入 Prompt
-                .defaultAdvisors(new PromptLoggingAdvisor())  // order +400，位于工具循环内部
+                .defaultTools(bookingTools)   // 工具 schema 写入 options.toolCallbacks，非 SYSTEM 文本
+                .defaultAdvisors(new PromptLoggingAdvisor())  // INFO=messages，DEBUG=tools
                 .build();
     }
 }

@@ -12,21 +12,28 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.ToolResponseMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
+import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.definition.ToolDefinition;
 import org.springframework.core.Ordered;
 
 /**
  * 在 ToolCallingAdvisor 循环内部记录每一次发给大模型的 Prompt 与模型返回的 Response。
  * <p>
- * 【为何需要 Spring AI 2.0】
- * 1.x 中工具循环在 {@code ChatModel.internalCall()} 内递归，Advisor 链通常只能看到首尾各一次请求/响应。
- * 2.0 把循环放进 {@code ToolCallingAdvisor}，order 大于其默认值（+300）的 Advisor 会参与<strong>每一轮</strong>迭代。
+ * 【日志分两层】
+ * <ul>
+ *   <li><b>INFO</b> — {@code prompt.getInstructions()} 中的对话消息（SYSTEM / USER / ASSISTANT / TOOL_RESPONSE）</li>
+ *   <li><b>DEBUG</b> — {@code prompt.getOptions()} 里注册的工具定义（name / description / inputSchema）</li>
+ * </ul>
+ * 工具<strong>不会</strong>出现在 INFO 的 messages 列表里：Spring AI 把 {@code @Tool} 注册结果放进
+ * {@link ToolCallingChatOptions#getToolCallbacks()}，由 {@code DeepSeekChatModel} 转成 HTTP 请求体中的
+ * {@code tools} 字段，与 {@code messages} 并列，而非一条 SYSTEM 文本。因此仅看 INFO 会误以为「没注册工具」。
  * </p>
  * <p>
- * 本类 order = {@link Ordered#HIGHEST_PRECEDENCE} + 400，因此日志中会出现
- * {@code [AI 第1步]}（模型决定调工具）、{@code [AI 第2步]}（携带 TOOL_RESPONSE 后生成最终回复）等。
- * </p>
- * <p>
- * 1.x 时代可用 {@code SimpleLoggerAdvisor}，但无法逐步观察 ReAct；2.0 的 Advisor 链模式才使本类有意义。
+ * Docker Compose 默认将本类与 {@code org.springframework.ai} 设为 DEBUG，便于观察完整请求结构。
+ * 本地 {@code mvn spring-boot:run} 默认 INFO；需要工具明细时可临时加
+ * {@code logging.level.com.demo.booking.advisor.PromptLoggingAdvisor=DEBUG}。
  * </p>
  */
 public class PromptLoggingAdvisor implements BaseAdvisor {
@@ -46,7 +53,9 @@ public class PromptLoggingAdvisor implements BaseAdvisor {
     public ChatClientRequest before(ChatClientRequest request, AdvisorChain advisorChain) {
         int step = STEP.get() + 1;
         STEP.set(step);
-        log.info("[AI 第{}步] 发送 Prompt:\n{}", step, formatPrompt(request));
+        log.info("[AI 第{}步] 发送 Prompt（messages）:\n{}", step, formatMessages(request));
+        log.debug("[AI 第{}步] 注册的工具（options → API tools 字段，非 messages）:\n{}",
+                step, formatRegisteredTools(request));
         return request;
     }
 
@@ -58,18 +67,44 @@ public class PromptLoggingAdvisor implements BaseAdvisor {
 
     /**
      * Advisor 链 order：必须 &gt; ToolCallingAdvisor（+300）才能进入工具循环内部。
-     * 数值越小越靠外层；+400 保证在每一轮 model call 前后都能 before/after 打日志。
      */
     @Override
     public int getOrder() {
         return Ordered.HIGHEST_PRECEDENCE + 400;
     }
 
-    private static String formatPrompt(ChatClientRequest request) {
+    /**
+     * 对话消息列表 — 对应 DeepSeek 请求 JSON 中的 {@code messages} 数组。
+     */
+    private static String formatMessages(ChatClientRequest request) {
         StringBuilder builder = new StringBuilder();
         int index = 1;
         for (Message message : request.prompt().getInstructions()) {
             builder.append("  [").append(index++).append("] ").append(formatMessage(message)).append('\n');
+        }
+        return builder.toString().stripTrailing();
+    }
+
+    /**
+     * 工具定义 — 对应 DeepSeek 请求 JSON 中的 {@code tools} 数组（function calling schema）。
+     */
+    private static String formatRegisteredTools(ChatClientRequest request) {
+        ChatOptions options = request.prompt().getOptions();
+        if (!(options instanceof ToolCallingChatOptions toolOptions)) {
+            return "  (无 ToolCallingChatOptions，未注册工具)";
+        }
+        var toolCallbacks = toolOptions.getToolCallbacks();
+        if (toolCallbacks == null || toolCallbacks.isEmpty()) {
+            return "  (toolCallbacks 为空)";
+        }
+        StringBuilder builder = new StringBuilder();
+        int index = 1;
+        for (ToolCallback callback : toolCallbacks) {
+            ToolDefinition definition = callback.getToolDefinition();
+            builder.append("  [").append(index++).append("] ")
+                    .append(definition.name()).append('\n')
+                    .append("      description: ").append(definition.description()).append('\n')
+                    .append("      inputSchema: ").append(definition.inputSchema()).append('\n');
         }
         return builder.toString().stripTrailing();
     }
