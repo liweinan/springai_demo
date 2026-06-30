@@ -8,6 +8,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **详细架构说明（自学向）** → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
+**前端聊天与列表刷新流程** → [docs/FRONTEND_CHAT_FLOW.md](docs/FRONTEND_CHAT_FLOW.md)
+
 **跨域与 Vite Proxy / CORS** → [docs/CORS.md](docs/CORS.md)
 
 ---

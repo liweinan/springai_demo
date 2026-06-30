@@ -9,6 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 【业务层】订票核心业务逻辑。
@@ -53,6 +56,14 @@ public class BookingService {
      */
     public List<BookingResponse> listUnsubscribedTickets() {
         return listByStatus(BookingStatus.UNSUBSCRIBED);
+    }
+
+    /**
+     * 查询所有已订阅的票。
+     * 供 AI 在用户要取消但未指明票名时，先查再取消。
+     */
+    public List<BookingResponse> listSubscribedTickets() {
+        return listByStatus(BookingStatus.SUBSCRIBED);
     }
 
     /**
@@ -113,15 +124,73 @@ public class BookingService {
             throw new IllegalArgumentException("取消订票必须提供票名关键词");
         }
 
-        List<Booking> matched = bookingRepository
-                .findByStatusAndTitleContainingIgnoreCase(BookingStatus.SUBSCRIBED, title.trim());
+        String keyword = title.trim();
+        Optional<Booking> booking = findSubscribedBooking(keyword);
 
-        if (matched.isEmpty()) {
-            throw new IllegalStateException("未找到已订阅的票：" + title.trim());
+        if (booking.isEmpty() && isVagueCancelRequest(keyword)) {
+            List<Booking> subscribed = bookingRepository.findByStatus(BookingStatus.SUBSCRIBED);
+            if (subscribed.size() == 1) {
+                booking = Optional.of(subscribed.get(0));
+            }
         }
 
-        Booking booking = matched.get(0);
-        booking.setStatus(BookingStatus.UNSUBSCRIBED);
-        return BookingResponse.from(bookingRepository.save(booking));
+        if (booking.isEmpty()) {
+            throw new IllegalStateException("未找到已订阅的票：" + keyword);
+        }
+
+        Booking target = booking.get();
+        target.setStatus(BookingStatus.UNSUBSCRIBED);
+        return BookingResponse.from(bookingRepository.save(target));
+    }
+
+    private Optional<Booking> findSubscribedBooking(String keyword) {
+        List<Booking> matched = bookingRepository
+                .findByStatusAndTitleContainingIgnoreCase(BookingStatus.SUBSCRIBED, keyword);
+        if (!matched.isEmpty()) {
+            return Optional.of(matched.get(0));
+        }
+
+        String normalized = keyword.replace('到', '-').replaceAll("\\s+", "");
+        matched = bookingRepository
+                .findByStatusAndTitleContainingIgnoreCase(BookingStatus.SUBSCRIBED, normalized);
+        if (!matched.isEmpty()) {
+            return Optional.of(matched.get(0));
+        }
+
+        Matcher flightCode = Pattern.compile("[A-Z]\\d+", Pattern.CASE_INSENSITIVE).matcher(keyword);
+        if (flightCode.find()) {
+            matched = bookingRepository.findByStatusAndTitleContainingIgnoreCase(
+                    BookingStatus.SUBSCRIBED, flightCode.group().toUpperCase());
+            if (!matched.isEmpty()) {
+                return Optional.of(matched.get(0));
+            }
+        }
+
+        if (keyword.contains("到")) {
+            String[] cities = keyword.split("到", 2);
+            if (cities.length == 2) {
+                String departure = stripCancelFiller(cities[0]);
+                String arrival = stripCancelFiller(cities[1]);
+                if (StringUtils.hasText(departure) && StringUtils.hasText(arrival)) {
+                    matched = bookingRepository.findByStatus(BookingStatus.SUBSCRIBED).stream()
+                            .filter(b -> b.getTitle().contains(departure) && b.getTitle().contains(arrival))
+                            .toList();
+                    if (!matched.isEmpty()) {
+                        return Optional.of(matched.get(0));
+                    }
+                }
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private static String stripCancelFiller(String text) {
+        return text.replaceAll("取消|订票|订阅|的|票|吧|了|\\s+", "").trim();
+    }
+
+    /** 用户只说「取消订票」等、未指明具体票名。 */
+    private static boolean isVagueCancelRequest(String keyword) {
+        return stripCancelFiller(keyword).isEmpty();
     }
 }

@@ -351,6 +351,8 @@ sequenceDiagram
 
 聊天成功后**必须**重新拉列表，因为数据库已被 `@Tool` 修改，前端 state 不会自动同步。
 
+更完整的说明（含 Mermaid 时序图、代码索引）→ [FRONTEND_CHAT_FLOW.md](./FRONTEND_CHAT_FLOW.md)
+
 ### 6.3 `BookingList.tsx`
 
 纯展示组件，接收 props：`subscribed`、`unsubscribed`、`loading`。  

@@ -45,6 +45,12 @@ public class BookingTools {
         return bookingService.listUnsubscribedTickets();
     }
 
+    @Tool(description = "查询当前所有已订阅的票。用户要取消但未指明票名、或需确认已订有哪些票时调用。")
+    public List<BookingResponse> listSubscribedTickets() {
+        log.info("[Tool 被调用] listSubscribedTickets");
+        return bookingService.listSubscribedTickets();
+    }
+
     /**
      * 大模型何时调用：用户说「我要订票」「帮我订 G123」等。
      *
@@ -63,7 +69,7 @@ public class BookingTools {
      * @param title 票名关键词，必填，支持模糊匹配
      * @return 取消后的票信息
      */
-    @Tool(description = "取消已订阅的票。title 必填，在已订阅票中模糊匹配。")
+    @Tool(description = "取消已订阅的票。title 必填：可用航班号(G123)、城市关键词(北京/上海)、或完整票名；支持「北京到上海」匹配「北京-上海 G123」。仅一张已订阅且用户只说「取消订票」时可传「取消订票」。")
     public BookingResponse cancelSubscription(String title) {
         log.info("[Tool 被调用] cancelSubscription, title={}", title);
         return bookingService.cancelSubscription(title);

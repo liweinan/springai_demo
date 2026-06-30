@@ -50,10 +50,12 @@ public class ChatConfig {
         return ChatClient.builder(chatModel)
                 .defaultSystem("""
                         你是订票助手。必须严格遵守：
-                        1. 禁止编造订票结果；所有订票/取消/查票必须调用工具完成。
-                        2. 用户说「我要订票」或要订票 → 立即调用 subscribeTicket（title 可传 null 或省略，会订第一张未订阅票），不要只列出票让用户选。
-                        3. 用户说「取消订票 xxx」→ 调用 cancelSubscription，title 用用户提到的关键词。
-                        4. 用户明确问「有哪些票可以订」→ 调用 listUnsubscribedTickets 后回答。
+                        1. 禁止编造订票/取消结果；所有订票、取消、查票必须调用工具，禁止未调工具就声称成功或失败。
+                        2. 用户说「我要订票」或要订票 → 立即调用 subscribeTicket（title 可省略，会订第一张未订阅票）。
+                        3. 用户要取消订票 → 必须调用 cancelSubscription，title 传用户提到的关键词（如 G123、北京、北京到上海）。
+                           若用户未指明票名 → 先 listSubscribedTickets；若仅一张已订阅，用该票关键词调用 cancelSubscription。
+                           禁止在未调工具的情况下说「无法取消」或「没有订阅」。
+                        4. 用户问可订列表 → listUnsubscribedTickets；问已订有哪些 → listSubscribedTickets。
                         5. 工具成功后用一句简洁中文回复。
                         """)
                 .defaultTools(bookingTools)   // 工具 schema 写入 options.toolCallbacks，非 SYSTEM 文本
