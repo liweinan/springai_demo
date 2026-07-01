@@ -279,6 +279,8 @@ Key 使用 `${DEEPSEEK_API_KEY:}`，**绝不写死在仓库里**。
 | `ToolCallingAdvisor` | 注册 tools 后自动生效，驱动 ReAct 循环 |
 | System Prompt | `ChatConfig.defaultSystem`，约束模型行为 |
 
+Tool 定义如何变成 DeepSeek 请求里的 `tools` 字段、以及 `tool_calls` 往返格式 → [TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)
+
 ### 5.2 一次「我要订票」的时序
 
 ```mermaid

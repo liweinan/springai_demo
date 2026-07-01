@@ -10,6 +10,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **前端聊天与列表刷新流程** → [docs/FRONTEND_CHAT_FLOW.md](docs/FRONTEND_CHAT_FLOW.md)
 
+**Tool Call 调用格式（@Tool → DeepSeek API）** → [docs/TOOL_CALL_FORMAT.md](docs/TOOL_CALL_FORMAT.md)
+
 **跨域与 Vite Proxy / CORS** → [docs/CORS.md](docs/CORS.md)
 
 ---
