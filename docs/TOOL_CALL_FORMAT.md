@@ -18,6 +18,8 @@
 
 **一句话**：`@Tool` 是 Spring AI 对 **大模型 API 层 Function Calling** 的 Java 封装，工具在 **同一次 HTTP 请求** 里以 JSON Schema 形式注册，模型在响应里声明要调哪个函数；**不是** MCP Server，也 **不是** Agent 间互联。
 
+主流 chat 模型（含 DeepSeek）普遍对 tool calling 做过 **post-training / 对齐**（SFT、偏好学习等），而非仅靠 prompt 临场学会格式；学术脉络与代表论文见 **§13**。
+
 ### 1.1 规范与标准：分层对照
 
 **没有一个叫「Tool Call 协议」的单一 RFC**；本 Demo 使用的格式由 **几份既有标准 + 行业 API 约定** 叠加而成：
@@ -726,6 +728,7 @@ Spring AI 框架侧详见 **§3**；本 Demo 业务与观测相关文件：
 
 ## 12. 延伸阅读
 
+- **§13 相关学术论文** — Tool Learning / Function Calling 综述、训练与 benchmark
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — §5 Spring AI 与 ReAct 时序
 - [FRONTEND_CHAT_FLOW.md](./FRONTEND_CHAT_FLOW.md) — 前端为何看不到 tool call
 - [JSON Schema 规范](https://json-schema.org/)
@@ -733,6 +736,56 @@ Spring AI 框架侧详见 **§3**；本 Demo 业务与观测相关文件：
 - [DeepSeek API 文档](https://api-docs.deepseek.com/)
 - [Spring AI Tools 官方文档](https://docs.spring.io/spring-ai/reference/api/tools.html)
 - [Spring AI 2.0 Composable Tool Calling 博客](https://spring.io/blog/2026/06/15/spring-ai-composable-tool-calling)
+
+---
+
+## 13. 相关学术论文（Tool Learning / Function Calling）
+
+本节汇总与 **工具学习、函数调用、ReAct** 相关的代表论文与 benchmark。主流大模型对 tool calling 的能力，在研究中通常通过 **工具轨迹数据 + SFT（有时含 RL）** 系统性提升，而非仅依赖推理期 prompt；商用模型（OpenAI、Anthropic、DeepSeek 等）的训练配方多数未公开，但 API 形态与公开 benchmark 可与下列文献对照。
+
+### 13.1 综述（入门首选）
+
+| 论文 | 链接 | 要点 |
+|------|------|------|
+| **Tool Learning with Foundation Models**（Qin 等，ACM CSUR 2024） | [ACM](https://doi.org/10.1145/3691626) / [arXiv:2404.08488](https://arxiv.org/abs/2404.08488) | 工具学习范式、SFT/RL、benchmark 总览 |
+| **Tool Learning with Large Language Models: A Survey** | [arXiv:2405.17935](https://arxiv.org/abs/2405.17935) | 四阶段：规划 → 选工具 → **tool calling** → 生成回复 |
+| **LLM with Tools: A Survey** | [arXiv:2409.18807](https://arxiv.org/abs/2409.18807) | fine-tuning 与 in-context learning 教模型用工具 |
+| **Tool learning with language models**（Springer 2025） | [Springer](https://link.springer.com/article/10.1007/s44336-025-00024-x) | 四阶段框架、评测与安全 |
+
+### 13.2 代表性工作（训练、数据与 ReAct）
+
+| 论文 | 链接 | 要点 |
+|------|------|------|
+| **ReAct: Synergizing Reasoning and Acting in Language Models**（Yao 等，2022） | [arXiv:2210.03629](https://arxiv.org/abs/2210.03629) | Reason + Act 交替；本 Demo ReAct 循环的概念来源 |
+| **Gorilla: Large Language Model Connected with Massive APIs** | [arXiv:2305.15334](https://arxiv.org/abs/2305.15334) | 面向 API/函数调用的微调与 APIBench |
+| **ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs** | [arXiv:2307.16789](https://arxiv.org/abs/2307.16789) | ToolBench 数据 + **ToolLLaMA** SFT |
+| **ToolACE: Winning the Points of LLM Function Calling**（ICLR 2025） | [arXiv:2409.00920](https://arxiv.org/abs/2409.00920) | **合成 function calling 训练数据**；SFT 后小模型接近 GPT-4 级调用表现 |
+
+### 13.3 评测与 Leaderboard
+
+| 名称 | 链接 | 测什么 |
+|------|------|--------|
+| **Berkeley Function Calling Leaderboard (BFCL)** | [Gorilla Leaderboard](https://gorilla.cs.berkeley.edu/leaderboard.html) | 单轮/多轮 function calling、多语言 API |
+| **APIBench**（Gorilla 配套） | 见 [Gorilla 论文](https://arxiv.org/abs/2305.15334) | API 选择与调用准确率 |
+| **APIBank** | 见 ToolLLM / ToolACE 引用 | 真实风格 API 调用 benchmark |
+| **T-Eval** | 见 §13.1 综述 | 将 tool use 拆为推理、规划等子能力 |
+
+### 13.4 与商用模型、本 Demo 的关系
+
+| 层面 | 说明 |
+|------|------|
+| **研究侧** | 大量工作表明 SFT/RL on tool-use 轨迹可系统性提升调用准确率（见 §13.2） |
+| **产品侧** | GPT-4、Claude、Gemini、DeepSeek 等通常具备 tool-use 对齐，但 **数据与训练细节多不公开** |
+| **本 Demo** | 使用 **已对齐的 chat 模型** + JSON Schema（§1.1）+ `ToolCallingAdvisor` ReAct 循环；仍可能出现未调工具就编造，故 system prompt 与 `[Tool 被调用]` 日志仍必要 |
+
+OpenAI 平台除 **自定义 `type: function` 工具** 外，还有内置 tools（web search、code interpreter 等）、Structured Outputs、Assistants/Realtime/Responses 等 **不同 API 形态**；本 Demo 的 `@Tool` 仅对应 **Chat Completions 自定义 function 工具** 这一条路径。
+
+### 13.5 建议阅读顺序
+
+1. [arXiv:2405.17935](https://arxiv.org/abs/2405.17935) — 建立 tool learning 全局图  
+2. [arXiv:2210.03629](https://arxiv.org/abs/2210.03629)（ReAct）— 理解推理与执行交替  
+3. [arXiv:2307.16789](https://arxiv.org/abs/2307.16789) 或 [arXiv:2409.00920](https://arxiv.org/abs/2409.00920) — 看专门数据 + SFT 如何做 function calling  
+4. [BFCL](https://gorilla.cs.berkeley.edu/leaderboard.html) — 看各模型 function calling 量化对比  
 
 ## References
 
