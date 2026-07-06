@@ -730,6 +730,7 @@ Spring AI 框架侧详见 **§3**；本 Demo 业务与观测相关文件：
 
 - **§13 相关学术论文** — Tool Learning / Function Calling 综述、训练与 benchmark
 - [ARCHITECTURE.md](./ARCHITECTURE.md) — §5 Spring AI 与 ReAct 时序
+- [PROMPT_LOGGING_ADVISOR.md](./PROMPT_LOGGING_ADVISOR.md) — 谁调用 before/after、与 `[Tool 被调用]` 的先后
 - [FRONTEND_CHAT_FLOW.md](./FRONTEND_CHAT_FLOW.md) — 前端为何看不到 tool call
 - [JSON Schema 规范](https://json-schema.org/)
 - [OpenAI — Function calling / Tools](https://platform.openai.com/docs/guides/function-calling)

@@ -281,6 +281,8 @@ Key 使用 `${DEEPSEEK_API_KEY:}`，**绝不写死在仓库里**。
 
 Tool 定义如何变成 DeepSeek 请求里的 `tools` 字段、以及 `tool_calls` 往返格式 → [TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)
 
+`PromptLoggingAdvisor` 由谁调用、`before`/`after` 与 `[Tool 被调用]` 的先后 → [PROMPT_LOGGING_ADVISOR.md](./PROMPT_LOGGING_ADVISOR.md)
+
 ### 5.2 一次「我要订票」的时序
 
 ```mermaid
@@ -319,10 +321,11 @@ sequenceDiagram
 
 ### 5.3 如何确认 ReAct 真的发生了？
 
-1. **后端日志**：出现 `[Tool 被调用] subscribeTicket`。
-2. **Hibernate SQL**：出现 `update bookings set status=...`。
-3. **前端列表**：左栏「已订阅」数量 +1。
-4. 若只有 AI 文字回复、日志无 Tool、列表不变 → 模型可能未调工具（LLM 常见情况，可调 prompt 或重试）。
+1. **后端日志**：出现 `[Tool 被调用] subscribeTicket`（在 `[AI 第N步] 收到 Response` **之后**）。
+2. **逐步 Prompt**：出现 `[AI 第1步]` … `tool_calls`，再 `[AI 第2步]` … `TOOL_RESPONSE` → 详见 [PROMPT_LOGGING_ADVISOR.md](./PROMPT_LOGGING_ADVISOR.md)。
+3. **Hibernate SQL**：出现 `update bookings set status=...`。
+4. **前端列表**：左栏「已订阅」数量 +1。
+5. 若只有 AI 文字回复、日志无 Tool、列表不变 → 模型可能未调工具（LLM 常见情况，可调 prompt 或重试）。
 
 ---
 

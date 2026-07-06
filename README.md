@@ -12,6 +12,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **Tool Call 调用格式（@Tool → DeepSeek API）** → [docs/TOOL_CALL_FORMAT.md](docs/TOOL_CALL_FORMAT.md)
 
+**PromptLoggingAdvisor 调用链与 before/after 时机** → [docs/PROMPT_LOGGING_ADVISOR.md](docs/PROMPT_LOGGING_ADVISOR.md)
+
 **跨域与 Vite Proxy / CORS** → [docs/CORS.md](docs/CORS.md)
 
 ---
