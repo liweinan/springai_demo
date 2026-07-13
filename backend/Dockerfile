@@ -9,7 +9,9 @@ FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 RUN apk add --no-cache curl
 COPY --from=build /app/target/*.jar app.jar
-EXPOSE 8080
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+EXPOSE 8080 5005
 HEALTHCHECK --interval=10s --timeout=5s --retries=12 --start-period=60s \
   CMD curl -f http://localhost:8080/api/health/live || exit 1
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

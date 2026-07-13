@@ -277,7 +277,10 @@ Key 使用 `${DEEPSEEK_API_KEY:}`，**绝不写死在仓库里**。
 | `ChatClient` | 流式 API 封装，在 `ChatConfig` 中组装 |
 | `@Tool` | `BookingTools` 上的注解，描述工具用途 |
 | `ToolCallingAdvisor` | 注册 tools 后自动生效，驱动 ReAct 循环 |
+| `Advisor` | ChatClient 拦截/增强机制；记忆、RAG、Tool 循环等横切逻辑的可组合插件 |
 | System Prompt | `ChatConfig.defaultSystem`，约束模型行为 |
+
+Advisor 接口的设计目的、责任链与 `ChatClient` / DeepSeek Starter 的关系 → [ADVISOR_API.md](./ADVISOR_API.md)
 
 Tool 定义如何变成 DeepSeek 请求里的 `tools` 字段、以及 `tool_calls` 往返格式 → [TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)
 
@@ -458,19 +461,20 @@ Playwright 自动截取页面状态，供 README 效果预览使用。
 
 ### 第三轮：Spring AI（核心）
 
-12. `tools/BookingTools.java` — `@Tool` 长什么样  
-13. `config/ChatConfig.java` — ChatClient 如何组装  
-14. `service/ChatService.java` — 唯一 `.call()` 的地方  
-15. `controller/ChatController.java`  
+12. `docs/ADVISOR_API.md` — Advisor 设计目的与责任链（建议先读）  
+13. `tools/BookingTools.java` — `@Tool` 长什么样  
+14. `config/ChatConfig.java` — ChatClient 如何组装  
+15. `service/ChatService.java` — 唯一 `.call()` 的地方  
+16. `controller/ChatController.java`  
 
 启动后端，发送一条「我要订票」，对照 **第 5.2 节时序图** 看控制台日志。
 
 ### 第四轮：联调与验证
 
-16. `config/WebConfig.java`  
-17. `controller/HealthController.java`  
-18. `e2e/tests/app.spec.ts`  
-19. 自己用 curl 跑一遍 README 里的验收命令  
+17. `config/WebConfig.java`  
+18. `controller/HealthController.java`  
+19. `e2e/tests/app.spec.ts`  
+20. 自己用 curl 跑一遍 README 里的验收命令  
 
 ---
 
@@ -528,6 +532,10 @@ springai_demo/
 ├── e2e/                                     # Playwright
 ├── docs/
 │   ├── ARCHITECTURE.md                      # 本文档
+│   ├── ADVISOR_API.md                       # Advisor 设计目的与责任链
+│   ├── PROMPT_LOGGING_ADVISOR.md            # PromptLoggingAdvisor 调用时机
+│   ├── TOOL_CALL_FORMAT.md                  # @Tool → DeepSeek API 格式
+│   ├── FRONTEND_CHAT_FLOW.md                # 前端聊天与列表刷新
 │   ├── CORS.md                              # 跨域 / Proxy / curl 实测
 │   └── screenshots/
 └── README.md

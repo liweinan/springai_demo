@@ -11,6 +11,11 @@
 #
 # 日志：backend 默认 DEBUG，可看到 PromptLoggingAdvisor 打印的 tools schema
 #       （工具在 API tools 字段，不在 messages 里 — 见 PromptLoggingAdvisor 类注释）
+#
+# JDWP 远程调试（IDE Attach 到 localhost:5005）：
+#   JDWP_ENABLED=true docker compose up --build
+#   或在 .env 中设置 JDWP_ENABLED=true
+#   JDWP_SUSPEND=y 时 JVM 会等待调试器连接后再启动（healthcheck 会 pending）
 
 services:
   backend:
@@ -19,11 +24,16 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+      - "${JDWP_PORT:-5005}:${JDWP_PORT:-5005}"
     environment:
       DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
       # 覆盖 application.yml 的 com.demo.booking=INFO；勿在 yml 里单独锁死 PromptLoggingAdvisor 为 INFO
       LOGGING_LEVEL_COM_DEMO_BOOKING: DEBUG
       LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_AI: DEBUG
+      # JDWP 远程调试：JDWP_ENABLED=true 后 IDE Attach localhost:5005
+      JDWP_ENABLED: ${JDWP_ENABLED:-false}
+      JDWP_PORT: ${JDWP_PORT:-5005}
+      JDWP_SUSPEND: ${JDWP_SUSPEND:-n}
 
   frontend:
     build:

@@ -8,6 +8,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **详细架构说明（自学向）** → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
+**Spring AI Advisor API 设计说明** → [docs/ADVISOR_API.md](docs/ADVISOR_API.md)
+
 **前端聊天与列表刷新流程** → [docs/FRONTEND_CHAT_FLOW.md](docs/FRONTEND_CHAT_FLOW.md)
 
 **Tool Call 调用格式（@Tool → DeepSeek API）** → [docs/TOOL_CALL_FORMAT.md](docs/TOOL_CALL_FORMAT.md)
@@ -96,6 +98,15 @@ docker compose up --build
 Docker 容器探活使用 `GET /api/health/live`（不调用 DeepSeek）；手动验收 Key 与连通性仍用 `GET /api/health`。
 
 Compose 下 backend 日志默认为 **DEBUG**：除 INFO 的 messages 外，还会打印注册工具的 name / description / inputSchema（对应 API `tools` 字段，不在 messages 里）。
+
+**JDWP 远程调试**（断点调试 Advisor 链等）：
+
+```bash
+JDWP_ENABLED=true docker compose up --build
+# IDE：Remote JVM Debug → Attach → localhost:5005
+```
+
+`.env` 中设 `JDWP_ENABLED=true` 亦可。`JDWP_SUSPEND=y` 会等调试器连接后再启动 JVM。
 
 停止：`docker compose down`
 
