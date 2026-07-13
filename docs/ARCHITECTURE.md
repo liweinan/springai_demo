@@ -282,7 +282,7 @@ Key 使用 `${DEEPSEEK_API_KEY:}`，**绝不写死在仓库里**。
 
 Spring AI 框架如何接入大模型、本项目为何用 DeepSeek 原生 Starter（非 Ollama）→ [SPRING_AI_INTEGRATION.md](./SPRING_AI_INTEGRATION.md)
 
-Advisor 接口的设计目的、责任链与 `ChatClient` / DeepSeek Starter 的关系 → [ADVISOR_API.md](./ADVISOR_API.md)
+Advisor 接口的设计目的、责任链、`CallAdvisor`/`StreamAdvisor` 双链、Reactor 流式与逐块/聚合 → [ADVISOR_API.md](./ADVISOR_API.md)（§7）
 
 Tool 定义如何变成 DeepSeek 请求里的 `tools` 字段、以及 `tool_calls` 往返格式 → [TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)
 
@@ -499,7 +499,7 @@ Playwright 自动截取页面状态，供 README 效果预览使用。
 
 1. 增加「直接点击按钮订票」REST 接口（不经过 AI）  
 2. 聊天历史持久化到数据库  
-3. SSE 流式输出 AI 回复  
+3. SSE 流式输出 AI 回复（需改用 `.stream()`，走 `StreamAdvisor` 链 — 见 [ADVISOR_API.md §7](./ADVISOR_API.md#7-streamadvisor-与两条平行链)）  
 4. 换 SQLite，数据重启不丢失  
 5. 意图识别 + 规则兜底，提高 Tool 调用成功率  
 
@@ -536,7 +536,7 @@ springai_demo/
 ├── docs/
 │   ├── ARCHITECTURE.md                      # 本文档
 │   ├── SPRING_AI_INTEGRATION.md             # Spring AI 接入架构与本项目选型
-│   ├── ADVISOR_API.md                       # Advisor 设计目的与责任链
+│   ├── ADVISOR_API.md                       # Advisor 设计、双链、Reactor 流式与聚合
 │   ├── PROMPT_LOGGING_ADVISOR.md            # PromptLoggingAdvisor 调用时机
 │   ├── TOOL_CALL_FORMAT.md                  # @Tool → DeepSeek API 格式
 │   ├── FRONTEND_CHAT_FLOW.md                # 前端聊天与列表刷新
