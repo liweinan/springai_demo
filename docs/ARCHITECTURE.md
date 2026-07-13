@@ -282,7 +282,7 @@ Key 使用 `${DEEPSEEK_API_KEY:}`，**绝不写死在仓库里**。
 
 Spring AI 框架如何接入大模型、本项目为何用 DeepSeek 原生 Starter（非 Ollama）→ [SPRING_AI_INTEGRATION.md](./SPRING_AI_INTEGRATION.md)
 
-Advisor 接口的设计目的、责任链、`CallAdvisor`/`StreamAdvisor` 双链、Reactor 流式与逐块/聚合 → [ADVISOR_API.md](./ADVISOR_API.md)（§7）
+Advisor 接口的设计目的、责任链（含 upstream Servlet/AOP/OkHttp 对照）、`CallAdvisor`/`StreamAdvisor` 双链、Reactor 流式与逐块/聚合 → [ADVISOR_API.md](./ADVISOR_API.md)（§5.3–§5.4）
 
 Tool 定义如何变成 DeepSeek 请求里的 `tools` 字段、以及 `tool_calls` 往返格式 → [TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)
 
