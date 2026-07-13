@@ -4,7 +4,7 @@
 
 本文档说明：**谁负责调用 `PromptLoggingAdvisor`**、`before()` / `after()` 在 ReAct 的哪一环触发、与 `[Tool 被调用]` 的先后关系，以及为何必须设 `order = +400`。框架侧行为基于 [spring-projects/spring-ai v2.0.0](https://github.com/spring-projects/spring-ai/tree/v2.0.0)。
 
-适合配合 [ADVISOR_API.md](./ADVISOR_API.md)（Advisor 整体设计）、[ARCHITECTURE.md](./ARCHITECTURE.md)（ReAct 全局）、[TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)（tools / tool_calls 格式）阅读。
+适合配合 [SPRING_AI_INTEGRATION.md](./SPRING_AI_INTEGRATION.md)（接入架构）、[ADVISOR_API.md](./ADVISOR_API.md)（Advisor 整体设计）、[ARCHITECTURE.md](./ARCHITECTURE.md)（ReAct 全局）、[TOOL_CALL_FORMAT.md](./TOOL_CALL_FORMAT.md)（tools / tool_calls 格式）阅读。
 
 ---
 

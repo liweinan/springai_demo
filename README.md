@@ -8,6 +8,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **详细架构说明（自学向）** → [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
+**Spring AI 大模型接入说明** → [docs/SPRING_AI_INTEGRATION.md](docs/SPRING_AI_INTEGRATION.md)
+
 **Spring AI Advisor API 设计说明** → [docs/ADVISOR_API.md](docs/ADVISOR_API.md)
 
 **前端聊天与列表刷新流程** → [docs/FRONTEND_CHAT_FLOW.md](docs/FRONTEND_CHAT_FLOW.md)

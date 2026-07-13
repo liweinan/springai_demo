@@ -4,7 +4,7 @@
 
 本文档说明 **Advisor 为什么存在**、**接口如何分层**、**责任链如何运转**，并串联 `ChatClient`、`spring-ai-starter-model-deepseek` 与本项目的 `PromptLoggingAdvisor`。框架行为基于 [spring-projects/spring-ai v2.0.0](https://github.com/spring-projects/spring-ai/tree/v2.0.0)。
 
-适合配合 [ARCHITECTURE.md](./ARCHITECTURE.md)（全局架构）、[PROMPT_LOGGING_ADVISOR.md](./PROMPT_LOGGING_ADVISOR.md)（本 Demo 自定义 Advisor 的调用时机）阅读。
+适合配合 [ARCHITECTURE.md](./ARCHITECTURE.md)（全局架构）、[SPRING_AI_INTEGRATION.md](./SPRING_AI_INTEGRATION.md)（大模型接入）、[PROMPT_LOGGING_ADVISOR.md](./PROMPT_LOGGING_ADVISOR.md)（本 Demo 自定义 Advisor 的调用时机）阅读。
 
 ---
 
