@@ -1,0 +1,60 @@
+name: jdb-debug-demo
+
+on:
+  push:
+    paths:
+      - "scripts/jdb-debug-demo.sh"
+      - "docs/JDB_DEBUG.md"
+      - ".github/workflows/jdb-debug-demo.yml"
+      - "backend/**"
+      - "docker-compose.yml"
+  pull_request:
+    paths:
+      - "scripts/jdb-debug-demo.sh"
+      - "docs/JDB_DEBUG.md"
+      - ".github/workflows/jdb-debug-demo.yml"
+      - "backend/**"
+      - "docker-compose.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jdb-debug-demo-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  jdb-demo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      JDWP_ENABLED: "true"
+      JDWP_SUSPEND: "n"
+      DEEPSEEK_API_KEY: ci-placeholder
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Install expect
+        run: sudo apt-get update && sudo apt-get install -y expect
+
+      - name: Start backend with JDWP
+        run: docker compose up -d --build --wait backend
+
+      - name: Run jdb debug demo
+        run: ./scripts/jdb-debug-demo.sh
+
+      - name: Backend logs on failure
+        if: failure()
+        run: docker compose logs backend
+
+      - name: Stop compose
+        if: always()
+        run: docker compose down

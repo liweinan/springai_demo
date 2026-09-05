@@ -20,6 +20,8 @@ React + Spring Boot + Spring AI（DeepSeek Tool Calling）全栈学习项目。
 
 **跨域与 Vite Proxy / CORS** → [docs/CORS.md](docs/CORS.md)
 
+**Docker JDWP / jdb 远程调试** → [docs/JDB_DEBUG.md](docs/JDB_DEBUG.md)
+
 ---
 
 ## 效果预览
@@ -106,9 +108,11 @@ Compose 下 backend 日志默认为 **DEBUG**：除 INFO 的 messages 外，还�
 ```bash
 JDWP_ENABLED=true docker compose up --build
 # IDE：Remote JVM Debug → Attach → localhost:5005
+# 或命令行验收（需 JDK + expect）：
+./scripts/jdb-debug-demo.sh
 ```
 
-`.env` 中设 `JDWP_ENABLED=true` 亦可。`JDWP_SUSPEND=y` 会等调试器连接后再启动 JVM。
+`.env` 中设 `JDWP_ENABLED=true` 亦可。`JDWP_SUSPEND=y` 会等调试器连接后再启动 JVM。步骤与常见失败见 [docs/JDB_DEBUG.md](docs/JDB_DEBUG.md)。
 
 停止：`docker compose down`
 
@@ -248,7 +252,9 @@ springai_demo/
 ├── backend/              # Spring Boot + Spring AI
 ├── frontend/             # React + Vite
 ├── e2e/                  # Playwright 测试 + 截图脚本
+├── scripts/              # jdb 调试验收
 ├── docs/screenshots/     # README 用截图
+├── docs/JDB_DEBUG.md     # Docker JDWP / jdb
 ├── .env.example          # Key 配置示例（不含真实 Key）
 └── README.md
 ```

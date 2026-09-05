@@ -16,6 +16,7 @@
 #   JDWP_ENABLED=true docker compose up --build
 #   或在 .env 中设置 JDWP_ENABLED=true
 #   JDWP_SUSPEND=y 时 JVM 会等待调试器连接后再启动（healthcheck 会 pending）
+#   命令行验收：./scripts/jdb-debug-demo.sh   说明：docs/JDB_DEBUG.md
 
 services:
   backend:

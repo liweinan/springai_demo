@@ -533,6 +533,8 @@ springai_demo/
 │   ├── api/                                 # fetch
 │   └── types/                               # TS 类型
 ├── e2e/                                     # Playwright
+├── scripts/
+│   └── jdb-debug-demo.sh                    # JDWP + jdb 断点验收（不调用 DeepSeek）
 ├── docs/
 │   ├── ARCHITECTURE.md                      # 本文档
 │   ├── SPRING_AI_INTEGRATION.md             # Spring AI 接入架构与本项目选型
@@ -541,6 +543,7 @@ springai_demo/
 │   ├── TOOL_CALL_FORMAT.md                  # @Tool → DeepSeek API 格式
 │   ├── FRONTEND_CHAT_FLOW.md                # 前端聊天与列表刷新
 │   ├── CORS.md                              # 跨域 / Proxy / curl 实测
+│   ├── JDB_DEBUG.md                         # Docker JDWP / jdb 远程调试
 │   └── screenshots/
 └── README.md
 ```
@@ -548,4 +551,5 @@ springai_demo/
 ---
 
 更完整的系统说明见 [ARCHITECTURE.md](ARCHITECTURE.md)。  
-跨域、Vite Proxy 与 Spring CORS 的关系见 [CORS.md](CORS.md)（含 curl 实测）。
+跨域、Vite Proxy 与 Spring CORS 的关系见 [CORS.md](CORS.md)（含 curl 实测）。  
+Docker 容器 JDWP / jdb 断点见 [JDB_DEBUG.md](./JDB_DEBUG.md)。
