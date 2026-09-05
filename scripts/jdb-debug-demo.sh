@@ -104,10 +104,13 @@ expect {
 }
 
 exec sh -c {
+  trap '' HUP
   curl -sS --max-time 25 "$API_BASE/api/bookings?status=UNSUBSCRIBED" \
-    -o "$JDB_CURL_BODY" \
+    -o "$JDB_CURL_BODY.tmp" \
     -w "CURL_HTTP=%{http_code}\n" \
-    > "$JDB_CURL_META" 2>&1
+    > "$JDB_CURL_META.tmp" 2>&1
+  mv "$JDB_CURL_BODY.tmp" "$JDB_CURL_BODY"
+  mv "$JDB_CURL_META.tmp" "$JDB_CURL_META"
 } &
 
 expect {
@@ -150,10 +153,19 @@ expect {
 }
 
 send "cont\r"
-set timeout 10
-expect {
-    -re $prompt_re {}
-    timeout {}
+set timeout 20
+set waited 0
+while {$waited < 20} {
+    if {[file exists $env(JDB_CURL_META)]} {
+        set meta_fd [open $env(JDB_CURL_META) r]
+        set meta [read $meta_fd]
+        close $meta_fd
+        if {[string match {*CURL_HTTP=*} $meta]} {
+            break
+        }
+    }
+    after 250
+    set waited [expr {$waited + 0.25}]
 }
 send "quit\r"
 expect eof
@@ -162,6 +174,13 @@ EOF
 expect_rc=$?
 if [[ "$expect_rc" -ne 0 ]]; then
   die "expect 退出码 ${expect_rc}"
+fi
+
+if [[ ! -f "$JDB_CURL_META" ]]; then
+  for _ in $(seq 1 20); do
+    [[ -f "$JDB_CURL_META" ]] && break
+    sleep 0.25
+  done
 fi
 
 grep -Eq '断点命中|Breakpoint hit' "$JDB_TRANSCRIPT" || die "transcript 无断点命中"
